@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import asyncio
+import logging
+logging.basicConfig()
+logging.getLogger().setLevel(logging.INFO)
 
 from os import environ
 
 from getpass import getpass
 from telethon import TelegramClient, events
-
-loop = asyncio.get_event_loop()
 
 
 class LBTelegramClient(TelegramClient):
@@ -20,21 +21,22 @@ class LBTelegramClient(TelegramClient):
                 Telegram's api_id acquired through my.telegram.org.
             api_hash::str
                 Telegram's api_hash.
-            proxy::
-                Optional proxy tuple/dictionary.
+            proxy::tuple/dict
+                proxy server (PySocks - https://github.com/Anorov/PySocks)
         """
-
         super().__init__(session_user_id, api_id, api_hash, proxy=proxy)
 
-        print('Connecting to Telegram servers...')
+        logging.info('Connecting to Telegram servers...')
+        self._message_queue = None
+
         try:
             loop.run_until_complete(self.connect())
         except ConnectionError:
-            print('Initial connection failed. Retrying...')
+            logging.warning('Initial connection failed. Retrying...')
             loop.run_until_complete(self.connect())
 
         if not loop.run_until_complete(self.is_user_authorized()):
-            print('First run. Sending code request...')
+            logging.info('First run. Sending code request...')
             user_phone = environ.get('TG_PHONE')
             if not user_phone:
                 user_phone = input('Enter your phone (Format:"+1234567890"): ')
@@ -54,7 +56,10 @@ class LBTelegramClient(TelegramClient):
 
                     self_user =\
                         loop.run_until_complete(self.sign_in(password=pw))
-        print('Connected to Telegram servers.')
+        logging.info('Connected to Telegram servers.')
+
+    async def set_message_queue(self, queue):
+        self._message_queue = queue
 
     async def run(self):
         self.add_event_handler(self.update_handler)
@@ -66,15 +71,33 @@ class LBTelegramClient(TelegramClient):
             msg = update.message
         except AttributeError:
             return
-        print(msg.message)
+
+        if msg.message is None or len(msg.message) == 0:
+            return
+
+        logging.info('enqueued: %s' % msg.message)
+        if self._message_queue != None:
+            await self._message_queue.put(msg.message)
 
 
-if __name__ == "__main__":
+async def pull_from_queue(queue):
+    while True:
+        msg = await queue.get()
+        logging.info('dequeued: %s' % msg)
+        await asyncio.sleep(5)
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+
+    queue = asyncio.Queue(loop=loop)
+
     client = LBTelegramClient(
         environ.get('TG_SESSION', 'session'),
         int(environ['TG_API_ID']),
         environ['TG_API_HASH'],
         proxy=None
     )
+    loop.run_until_complete(client.set_message_queue(queue))
+    consumer = pull_from_queue(queue)
 
-    loop.run_until_complete(client.run())
+    loop.run_until_complete(asyncio.gather(client.run(), consumer))
