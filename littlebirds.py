@@ -2,23 +2,19 @@
 import asyncio
 import logging
 
+from cruncher import Cruncher
+
 from platforms.telegram import LBTelegramClient
 logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
 
 from os import environ
 
-async def pull_from_queue(queue):
-    while True:
-        msg = await queue.get()
-        logging.info('dequeued: %s' % msg)
-        await asyncio.sleep(0)
-
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-
     queue = asyncio.Queue(loop=loop)
+    cruncher = Cruncher(loop, queue)
 
     client = LBTelegramClient(
         environ.get('TG_SESSION', 'session'),
@@ -27,6 +23,9 @@ if __name__ == '__main__':
         loop,
         queue
     )
-    consumer = pull_from_queue(queue)
 
-    loop.run_until_complete(asyncio.gather(client.run(), consumer))
+    loop.run_until_complete(asyncio.gather(
+        client.run(),
+        cruncher.sweep(),
+        cruncher.process_message_queue()
+    ))
