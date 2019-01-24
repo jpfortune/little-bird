@@ -27,9 +27,15 @@ class Cruncher():
                 # an async sleep
                 word = self.all_words.behead()
 
-                if self.counter[word] == 1:
-                    self.counter.pop(word)
-                    print("removed from queue: %s" % word)
+                # This cuases a bug where some words have counts of less than 1
+                # if self.counter[word] == 1:
+                if self.counter[word] <= 1:
+                    # without try/except a keyerror can occur
+                    try:
+                        self.counter.pop(word)
+                        print("removed from queue: %s" % word)
+                    except KeyError:
+                        pass
                 else:
                     self.counter[word] -= 1
 
@@ -58,7 +64,14 @@ class Cruncher():
                         self.all_words.append(word.lower())
                         self.counter[word] += 1
 
-            print ("Words: {}".format(words))
+            print("Words: {}".format(words))
+
+    async def periodic_print(self):
+        while True:
+            print("Current Snapshot")
+            for word in self.counter.most_common():
+                print(word)
+            await asyncio.sleep(30)
 
 
 class _Node():
