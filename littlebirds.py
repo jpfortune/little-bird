@@ -23,10 +23,9 @@ if __name__ == '__main__':
         loop,
         queue
     )
-
     loop.run_until_complete(asyncio.gather(
         client.run(),
-        cruncher.sweep(),
-        cruncher.process_message_queue(),
-        cruncher.periodic_print()
+        cruncher.run()
     ))
+
+    loop.close()

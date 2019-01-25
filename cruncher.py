@@ -18,60 +18,72 @@ class Cruncher():
         self.all_words = WordList()
         self.lookback = 180
 
-    async def sweep(self):
+    async def run(self):
         while True:
-            print("Sweeping >")
-            time = datetime.now() - timedelta(seconds=self.lookback)
-            while (self.all_words.head and time > self.all_words.head.time):
-                # if there are too many words to behead we may need to add
-                # an async sleep
-                word = self.all_words.behead()
+            try:
+                await asyncio.gather(
+                    self.sweep(),
+                    self.process_message_queue(),
+                    self.periodic_print()
+                )
+            except Exception as e:
+                loggging.error("Unexpected exception: {}".format(e))
+                return
 
-                # This cuases a bug where some words have counts of less than 1
-                # if self.counter[word] == 1:
-                if self.counter[word] <= 1:
-                    # without try/except a keyerror can occur
-                    try:
-                        self.counter.pop(word)
-                        print("removed from queue: %s" % word)
-                    except KeyError:
-                        pass
-                else:
-                    self.counter[word] -= 1
+    async def sweep(self):
+        print("Sweeping >")
+        time = datetime.now() - timedelta(seconds=self.lookback)
+        while (self.all_words.head and time > self.all_words.head.time):
+            # if there are too many words to behead we may need to add
+            # an async sleep
+            word = self.all_words.behead()
 
-            await asyncio.sleep(30)
+            # This cuases a bug where some words have counts of less than 1
+            # if self.counter[word] == 1:
+            if self.counter[word] <= 1:
+                # without try/except a keyerror can occur
+                try:
+                    self.counter.pop(word)
+                    print("removed from queue: %s" % word)
+                except KeyError:
+                    pass
+            else:
+                self.counter[word] -= 1
+        #await asyncio.sleep(30)
 
     async def process_message_queue(self):
-        while True:
+        try:
             raw_message = await self._queue.get()
-            logging.info('dequeued: %s' % raw_message)
+        except:
+            raise
 
-            #TODO Should we compile the regex for speed gains?
-            #TODO Maybe it's faster if we compiled a regex of everything in
-            # self.check_set
-            out = []
-            words = re.findall(WORD_REGEX, raw_message)
+        logging.info('dequeued: %s' % raw_message)
 
-            if self.check_set:
-                for word in words:
-                    if word.lower() in self.check_set:
-                        self.all_words.append(word.lower())
-                        self.counter[word] += 1
+        #TODO Should we compile the regex for speed gains?
+        #TODO Maybe it's faster if we compiled a regex of everything in
+        # self.check_set
+        out = []
+        words = re.findall(WORD_REGEX, raw_message)
 
-            else:
-                for word in words:
-                    if word:
-                        self.all_words.append(word.lower())
-                        self.counter[word] += 1
+        if self.check_set:
+            for word in words:
+                if word.lower() in self.check_set:
+                    self.all_words.append(word.lower())
+                    self.counter[word] += 1
 
-            print("Words: {}".format(words))
+        else:
+            for word in words:
+                if word:
+                    self.all_words.append(word.lower())
+                    self.counter[word] += 1
+
+        print("Words: {}".format(words))
 
     async def periodic_print(self):
-        while True:
-            print("Current Snapshot")
-            for word in self.counter.most_common():
-                print(word)
-            await asyncio.sleep(30)
+        print("Current Snapshot")
+        for word in self.counter.most_common():
+            print(word)
+        #await asyncio.sleep(30)
 
 
 class _Node():
