@@ -19,71 +19,67 @@ class Cruncher():
         self.lookback = 180
 
     async def run(self):
+        asyncio.ensure_future(self.process_message_queue())
+        asyncio.ensure_future(self.sweep())
+        asyncio.ensure_future(self.print_current_words())
+
+    async def sweep(self, interval=5):
         while True:
-            try:
-                await asyncio.gather(
-                    self.sweep(),
-                    self.process_message_queue(),
-                    self.periodic_print()
-                )
-            except Exception as e:
-                loggging.error("Unexpected exception: {}".format(e))
-                return
+            logging.info("Sweeping expired words")
+            time = datetime.now() - timedelta(seconds=self.lookback)
+            while (self.all_words.head and time > self.all_words.head.time):
+                # if there are too many words to behead we may need to add
+                # an async sleep
+                word = self.all_words.behead()
 
-    async def sweep(self):
-        print("Sweeping >")
-        time = datetime.now() - timedelta(seconds=self.lookback)
-        while (self.all_words.head and time > self.all_words.head.time):
-            # if there are too many words to behead we may need to add
-            # an async sleep
-            word = self.all_words.behead()
-
-            # This cuases a bug where some words have counts of less than 1
-            # if self.counter[word] == 1:
-            if self.counter[word] <= 1:
-                # without try/except a keyerror can occur
-                try:
-                    self.counter.pop(word)
-                    print("removed from queue: %s" % word)
-                except KeyError:
-                    pass
-            else:
-                self.counter[word] -= 1
-        #await asyncio.sleep(30)
+                # This cuases a bug where some words have counts of less than 1
+                # if self.counter[word] == 1:
+                if self.counter[word] <= 1:
+                    # without try/except a keyerror can occur
+                    try:
+                        self.counter.pop(word)
+                        logging.debug("removed from queue: %s" % word)
+                    except KeyError:
+                        pass
+                else:
+                    self.counter[word] -= 1
+            await asyncio.sleep(interval)
 
     async def process_message_queue(self):
-        try:
-            raw_message = await self._queue.get()
-        except:
-            raise
+        while True:
+            try:
+                raw_message = await self._queue.get()
+            except:
+                raise
 
-        logging.info('dequeued: %s' % raw_message)
+            logging.info('dequeued: %s' % raw_message)
 
-        #TODO Should we compile the regex for speed gains?
-        #TODO Maybe it's faster if we compiled a regex of everything in
-        # self.check_set
-        out = []
-        words = re.findall(WORD_REGEX, raw_message)
+            #TODO Should we compile the regex for speed gains?
+            #TODO Maybe it's faster if we compiled a regex of everything in
+            # self.check_set
+            out = []
+            words = re.findall(WORD_REGEX, raw_message)
 
-        if self.check_set:
-            for word in words:
-                if word.lower() in self.check_set:
-                    self.all_words.append(word.lower())
-                    self.counter[word] += 1
+            if self.check_set:
+                for word in words:
+                    if word.lower() in self.check_set:
+                        self.all_words.append(word.lower())
+                        self.counter[word] += 1
 
-        else:
-            for word in words:
-                if word:
-                    self.all_words.append(word.lower())
-                    self.counter[word] += 1
+            else:
+                for word in words:
+                    if word:
+                        self.all_words.append(word.lower())
+                        self.counter[word] += 1
 
-        print("Words: {}".format(words))
-
-    async def periodic_print(self):
-        print("Current Snapshot")
-        for word in self.counter.most_common():
-            print(word)
-        #await asyncio.sleep(30)
+    async def print_current_words(self, interval=10):
+        while True:
+            words = self.counter.most_common()
+            if words:
+                logging.info("Current Snapshot:")
+                for word in self.counter.most_common():
+                    logging.info(word)
+            await asyncio.sleep(interval)
 
 
 class _Node():
