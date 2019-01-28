@@ -23,7 +23,7 @@ class Cruncher():
         asyncio.ensure_future(self.sweep())
         asyncio.ensure_future(self.print_current_words())
 
-    async def sweep(self, interval=5):
+    async def sweep(self, interval=30):
         while True:
             logging.info("Sweeping expired words")
             time = datetime.now() - timedelta(seconds=self.lookback)
@@ -72,12 +72,12 @@ class Cruncher():
                         self.all_words.append(word.lower())
                         self.counter[word] += 1
 
-    async def print_current_words(self, interval=10):
+    async def print_current_words(self, interval=10, num_results=10):
         while True:
-            words = self.counter.most_common()
+            words = self.counter.most_common(num_results)
             if words:
                 logging.info("Current Snapshot:")
-                for word in self.counter.most_common():
+                for word in words:
                     logging.info(word)
             await asyncio.sleep(interval)
 
