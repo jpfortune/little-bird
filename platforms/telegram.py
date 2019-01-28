@@ -12,14 +12,14 @@ from telethon import TelegramClient, events
 
 class LBTelegramClient(TelegramClient):
     def __init__(
-            self,
-            session_user_id,
-            api_id,
-            api_hash,
-            loop,
-            queue,
-            proxy=None
-        ):
+        self,
+        session_user_id,
+        api_id,
+        api_hash,
+        loop,
+        queue,
+        proxy=None
+    ):
         """
         Initializes the LBTelegramClient.
         Args:
@@ -90,7 +90,7 @@ class LBTelegramClient(TelegramClient):
         if msg.message is None or len(msg.message) == 0:
             return
 
-        logging.info('enqueued: %s' % msg.message)
+        logging.debug('enqueued message from Telegram: %s' % msg.message)
         await self._message_queue.put(msg.message)
 
 

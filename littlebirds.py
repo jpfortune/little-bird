@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import asyncio
 import logging
 
@@ -10,11 +11,61 @@ logging.getLogger().setLevel(logging.INFO)
 
 from os import environ
 
+parser = argparse.ArgumentParser(description=(
+        'Calculate the TopN number of words seen in messages from '
+        'Telegram'
+))
+parser.add_argument(
+    '--lookback',
+    dest='lookback',
+    type=int,
+    default=300,
+    help='only keep words that have been seen in the last number of seconds'
+)
+parser.add_argument(
+    '--print-interval',
+    dest='print_interval',
+    type=int,
+    default=30,
+    help='interval in seconds for periodic printing of the most common words'
+)
+parser.add_argument(
+    '--crypto-only',
+    dest = 'crypto_only',
+    action= 'store_true',
+    help='only check for crypto tickers pulled from coin market cap'
+)
+parser.add_argument(
+    '--topn',
+    dest='topn',
+    type=int,
+    default=25,
+    help='print only the topn number words seen'
+)
 
+# TODO Fill in this place holder function
+def get_tickers():
+    return None
+
+
+# TODO Add code to check for environment variables
 if __name__ == '__main__':
+    args = parser.parse_args()
     loop = asyncio.get_event_loop()
     queue = asyncio.Queue(loop=loop)
-    cruncher = Cruncher(loop, queue)
+
+    check_set = None
+    if args.crypto_only:
+        check_set = get_tickers()
+
+    cruncher = Cruncher(
+        loop,
+        queue,
+        check_set = check_set,
+        lookback = args.lookback,
+        topn = args.topn,
+        print_interval = args.print_interval
+    )
 
     client = LBTelegramClient(
         environ.get('TG_SESSION', 'session'),
@@ -23,6 +74,7 @@ if __name__ == '__main__':
         loop,
         queue
     )
+
     loop.run_until_complete(asyncio.gather(
         client.run(),
         cruncher.run()
