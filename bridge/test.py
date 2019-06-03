@@ -5,13 +5,12 @@ from pprint import pprint as pp
 
 django.setup()
 
-from scribe.serializers import RecordSerializer, KeywordListSerializer
-from scribe.models import Record
+from api.serializers import RecordSerializer, KeywordListSerializer
+from api.models import Record
 
 data = {
     "posted": "2000-10-10 12:34:56",
-    "author": 123,
-    # "author": "deeznuts",
+    "author": "hollaholla",
     "platform": "yo momma",
     "keywords": ["icx", "ven", "xrp"],
 }

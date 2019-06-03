@@ -2,7 +2,7 @@ import logging
 
 from rest_framework import serializers
 from django.db import models
-from scribe.models import Record, Keyword, Author
+from api.models import Record, Keyword, Author
 from pprint import pprint as pp
 from django.core.exceptions import ValidationError
 

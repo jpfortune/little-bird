@@ -21,10 +21,11 @@ from django.conf.urls.static import static
 # from upload.views import image_upload
 
 from rest_framework import routers
-from scribe import views
+from api import views
 
 router = routers.DefaultRouter()
 router.register(r"records", views.RecordViewSet)
+router.register(r"api/records", views.RecordViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
