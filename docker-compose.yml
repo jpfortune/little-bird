@@ -1,6 +1,18 @@
 version: '3.7'
 
 services:
+  telegram:
+    build: ./telegram
+    #command: python littlebirds.py
+    command: python test.py
+    env_file: .env.tg
+    volumes:
+      - ./telegram/:/usr/src/telegram/
+    ports:
+      - 8000
+    stdin_open: true
+    tty: true
+
   db:
     image: postgres:11.2-alpine
     volumes:

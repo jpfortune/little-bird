@@ -64,16 +64,3 @@ class RecordSerializer(serializers.ModelSerializer):
 
         record.keywords.add(*words)
         return record
-
-
-# class TrackSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = Track
-#        fields = ('order', 'title', 'duration')
-#
-# class AlbumSerializer(serializers.ModelSerializer):
-#    tracks = TrackSerializer(many=True, read_only=True)
-#
-#    class Meta:
-#        model = Album
-#        fields = ('album_name', 'artist', 'tracks')

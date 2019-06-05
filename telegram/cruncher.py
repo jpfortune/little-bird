@@ -8,15 +8,10 @@ from datetime import datetime, timedelta
 
 WORD_REGEX = re.compile("(\w{3,})+")
 
-class Cruncher():
+
+class Cruncher:
     def __init__(
-        self,
-        loop,
-        queue,
-        check_set=None,
-        lookback=300,
-        topn=None,
-        print_interval=30
+        self, loop, queue, check_set=None, lookback=300, topn=None, print_interval=30
     ):
         """
         Initializes the Cruncher.
@@ -42,7 +37,7 @@ class Cruncher():
         self.check_set = check_set
         self.counter = collections.Counter()
         self.all_words = WordList()
-        self.lookback=lookback
+        self.lookback = lookback
         self.topn = topn
         self.print_interval = print_interval
 
@@ -51,11 +46,11 @@ class Cruncher():
         asyncio.ensure_future(self.sweep())
         asyncio.ensure_future(self.print_current_words())
 
-    async def sweep(self, interval: int=5):
+    async def sweep(self, interval: int = 5):
         while True:
             logging.debug("Sweeping expired words")
             time = datetime.now() - timedelta(seconds=self.lookback)
-            while (self.all_words.head and time > self.all_words.head.time):
+            while self.all_words.head and time > self.all_words.head.time:
                 # if there are too many words to behead we may need to add
                 # an async sleep
                 word = self.all_words.behead()
@@ -80,19 +75,19 @@ class Cruncher():
             except:
                 raise
 
-            logging.info('Parsing: %s' % raw_message)
+            logging.info("Parsing: %s" % raw_message)
 
             # TODO: make this provide more detail about which platform this
             # came in from as well as timing information
-            logging.debug('dequeued: %s' % raw_message)
+            logging.debug("dequeued: %s" % raw_message)
 
-            #TODO Should we compile the regex for speed gains?
-            #TODO Maybe it's faster if we compiled a regex of everything in
+            # TODO Should we compile the regex for speed gains?
+            # TODO Maybe it's faster if we compiled a regex of everything in
             # self.check_set
             out = []
             words = re.findall(WORD_REGEX, raw_message)
 
-            logging.info('Words Parsed: %s' % words)
+            logging.info("Words Parsed: %s" % words)
 
             if self.check_set:
                 for word in words:
@@ -116,17 +111,17 @@ class Cruncher():
             await asyncio.sleep(self.print_interval)
 
 
-class _Node():
-        # TODO make this more accurate, right now this is using the time the
-        # object is created rather than the time the message was actually
-        # received
+class _Node:
+    # TODO make this more accurate, right now this is using the time the
+    # object is created rather than the time the message was actually
+    # received
     def __init__(self, word, next=None):
         self.time = datetime.now()
         self.word = word
         self.next = next
 
 
-class WordList():
+class WordList:
     def __init__(self):
         self.head = None
         self.tail = None
