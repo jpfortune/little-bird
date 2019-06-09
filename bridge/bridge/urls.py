@@ -21,11 +21,14 @@ from django.conf.urls.static import static
 # from upload.views import image_upload
 
 from rest_framework import routers
-from api import views
+from api import views as api_views
+from telegram import views as telegram_views
 
 router = routers.DefaultRouter()
-router.register(r"records", views.RecordViewSet)
-router.register(r"api/records", views.RecordViewSet)
+router.register(r"records", api_views.RecordViewSet)
+router.register(r"api/records", api_views.RecordViewSet)
+
+router.register(r"telegram", telegram_views.ChannelViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

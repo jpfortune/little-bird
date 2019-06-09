@@ -1,28 +1,68 @@
 #!/usr/bin/env python
-import sqlite3
-import os
+import time
 
-from telethon import TelegramClient, events, sync
-
-# These example values won't work. You must get your own api_id and
-# api_hash from https://my.telegram.org, under API Development.
-
-session = os.environ.get("TG_SESSION", "printer")
-api_id = get_env("TG_API_ID", "Enter your API ID: ", int)
-api_hash = get_env("TG_API_HASH", "Enter your API hash: ")
-proxy = None  # https://github.com/Anorov/PySocks
+from bridge_client import BridgeClient
 
 
-# This is our update handler. It is called when a new update arrives.
-async def handler(update):
-    print(update)
+# url = "http://bridge:8000/records/"
+
+# data = {
+#    "posted": "2000-10-10 12:34:56",
+#    "author": "hollaholla",
+#    "platform": "yo momma",
+#    "keywords": ["icx", "ven", "xrp"],
+# }
 
 
-# Use the client in a `with` block. It calls `start/disconnect` automatically.
-with TelegramClient(session, api_id, api_hash, proxy=proxy) as client:
-    # Register the update handler so that it gets called
-    client.add_event_handler(handler)
+# def get_telegram_client():
+#    dialogs = client.get_dialogs()
+#
+#    for d in dialogs:
+#        if d.is_channel:
+#            print(f"{d.name}")
+#            pp(vars(d))
+#
+#    client.add_event_handler(handler)
+#    return client
+#
+#    print("(Press Ctrl+C to stop this)")
+#    return client
 
-    # Run the client until Ctrl+C is pressed, or the client disconnects
-    print("(Press Ctrl+C to stop this)")
-    client.run_until_disconnected()
+# async def handler(update):
+#    print(update)
+
+
+def main():
+    # client = TG_Client(session, api_id, api_hash, proxy=proxy)
+    bc = BridgeClient("bridge")
+
+    # data = {
+    #    "posted": "2000-10-10 12:34:56",
+    #    "author": "hollaholla",
+    #    "platform": "yo momma",
+    #    "keywords": ["icx", "ven", "xrp"],
+    # }
+
+    data = bc.add_record(
+        "2000-10-10 12:34:56", "holla4adolla", "twitgram", ["icx", "ven", "xrp"]
+    )
+    data = bc.add_record(
+        "2000-10-10 12:34:56", "holla4adolla", "twitgram", ["icx", "ven", "xrp"]
+    )
+    data = bc.add_record(
+        "2000-10-10 12:34:56", "holla4adolla", "twitgram", ["icx", "ven", "xrp"]
+    )
+    data = bc.add_channel(12345, "dummy_channel")
+    print(f"{data.content}")
+
+    while True:
+        try:
+            data = bc.get_channels()
+            print(f"{data.content}")
+        except Exception:
+            pass
+        time.sleep(10)
+
+
+if __name__ == "__main__":
+    main()

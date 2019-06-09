@@ -5,13 +5,15 @@ services:
     build: ./telegram
     #command: python littlebirds.py
     command: python test.py
-    env_file: .env.tg
+    #env_file: .env.tg
     volumes:
       - ./telegram/:/usr/src/telegram/
+    depends_on:
+      - bridge
     ports:
       - 8000
-    stdin_open: true
-    tty: true
+        #stdin_open: true
+        #tty: true
 
   db:
     image: postgres:11.2-alpine

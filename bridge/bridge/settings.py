@@ -23,7 +23,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.110", "telegram"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.110", "bridge"]
 
 
 # Application definition
@@ -35,9 +35,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "api",
     "rest_framework",
+    "api",
     "upload",
+    "telegram",
 ]
 
 MIDDLEWARE = [
@@ -77,7 +78,9 @@ WSGI_APPLICATION = "bridge.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "NAME": os.environ.get(
+            "SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")
+        ),
         "USER": os.environ.get("SQL_USER", "user"),
         "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
         "HOST": os.environ.get("SQL_HOST", "localhost"),
@@ -95,7 +98,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
+    },
 ]
 
 
