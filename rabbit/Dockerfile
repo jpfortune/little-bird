@@ -1,8 +1,7 @@
 FROM rabbitmq:3-management
 
-# set work directory
-WORKDIR /usr/src/rabbit
+COPY rabbitmq.config /etc/rabbitmq/
+COPY definitions.json /etc/rabbitmq/
+RUN chown rabbitmq:rabbitmq /etc/rabbitmq/rabbitmq.config /etc/rabbitmq/definitions.json
 
-COPY . /usr/src/rabbit/
-
-#ENTRYPOINT ["/usr/src/rabbit/entrypoint.sh"]
+CMD ["rabbitmq-server"]

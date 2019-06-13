@@ -1,0 +1,46 @@
+{
+    "rabbit_version":"3.7.14",
+    "users":[
+        {
+            "name":"admin",
+            "password_hash":"/9Pwa6DTJ7sPAKVdjkPyurleyGonzUmUWcOijr5YmEMg03Yf",
+            "hashing_algorithm":"rabbit_password_hashing_sha256",
+            "tags":"administrator"
+        }
+    ],
+    "vhosts":[
+        {
+            "name":"/"
+        }
+    ],
+    "permissions":[
+        {
+            "user":"admin",
+            "vhost":"/",
+            "configure":".*",
+            "write":".*",
+            "read":".*"
+        }
+    ],
+    "topic_permissions":[
+
+    ],
+    "parameters":[
+
+    ],
+    "global_parameters":[
+
+    ],
+    "policies":[
+
+    ],
+    "queues":[
+
+    ],
+    "exchanges":[
+
+    ],
+    "bindings":[
+
+    ]
+}
