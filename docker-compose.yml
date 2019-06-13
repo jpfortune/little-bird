@@ -1,19 +1,33 @@
 version: '3.7'
 
 services:
-  telegram:
-    build: ./telegram
-    #command: python littlebirds.py
-    command: python test.py
-    #env_file: .env.tg
+  rabbit:
+      #build: ./rabbit
+    image: rabbitmq:3-management
+    #command: rabbitmq-server
     volumes:
-      - ./telegram/:/usr/src/telegram/
-    depends_on:
-      - bridge
+    #  - ./rabbit/:/usr/src/rabbit/
+      - ./rabbit/rabbit-backup.config:/usr/src/rabbitmq.config
     ports:
-      - 8000
-        #stdin_open: true
-        #tty: true
+      - 5672:5672
+      - 15672:15672
+        #environment:
+        #  - RABBIT_HOST=rabbit
+        #  - RABBIT_PORT=5672
+        #    - RABBITMQ_DEFAULT_USER=admin
+        #    - RABBITMQ_DEFAULT_PASS=SOMEPASSWORD
+
+        #telegram:
+        #  build: ./telegram
+        #  #command: python littlebirds.py
+        #  command: python test.py
+        #  #env_file: .env.tg
+        #  volumes:
+        #    - ./telegram/:/usr/src/telegram/
+        #  depends_on:
+        #    - bridge
+        #  ports:
+        #    - 8000
 
   db:
     image: postgres:11.2-alpine

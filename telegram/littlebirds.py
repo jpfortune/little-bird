@@ -1,24 +1,4 @@
 #!/usr/bin/env python3
-import requests
-import time
-import json
-from pprint import pprint as pp
-
-url = "http://bridge:8000/records/"
-
-data = {
-    "posted": "2000-10-10 12:34:56",
-    "author": "hollaholla",
-    "platform": "yo momma",
-    "keywords": ["icx", "ven", "xrp"],
-}
-
-while True:
-    r = requests.post(url, data=json.dumps(data))
-    pp(r)
-    print("sleeping")
-    time.sleep(5)
-
 import argparse
 import asyncio
 import logging
