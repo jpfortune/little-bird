@@ -2,6 +2,12 @@
     "rabbit_version":"3.7.14",
     "users":[
         {
+            "name":"dev_worker",
+            "password_hash":"T27dBMkJRU3Vw7w03egUYLaAZ4oWR/MMzc83nD9V+PsyKxJ3",
+            "hashing_algorithm":"rabbit_password_hashing_sha256",
+            "tags":""
+        },
+        {
             "name":"admin",
             "password_hash":"/9Pwa6DTJ7sPAKVdjkPyurleyGonzUmUWcOijr5YmEMg03Yf",
             "hashing_algorithm":"rabbit_password_hashing_sha256",
@@ -20,6 +26,13 @@
             "configure":".*",
             "write":".*",
             "read":".*"
+        },
+        {
+            "user":"dev_worker",
+            "vhost":"/",
+            "configure":".*",
+            "write":".*",
+            "read":".*"
         }
     ],
     "topic_permissions":[
@@ -29,7 +42,10 @@
 
     ],
     "global_parameters":[
-
+        {
+            "name":"cluster_name",
+            "value":"rabbit@1ae7dce22082"
+        }
     ],
     "policies":[
 

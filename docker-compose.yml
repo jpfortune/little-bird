@@ -2,12 +2,7 @@ version: '3.7'
 
 services:
   rabbit:
-      #build: ./rabbit
-    image: rabbitmq:3-management
-    #command: rabbitmq-server
-    volumes:
-    #  - ./rabbit/:/usr/src/rabbit/
-      - ./rabbit/rabbit-backup.config:/usr/src/rabbitmq.config
+    build: ./rabbit
     ports:
       - 5672:5672
       - 15672:15672
@@ -28,6 +23,11 @@ services:
         #    - bridge
         #  ports:
         #    - 8000
+  worker:
+    build: ./worker
+    environment:
+      - RMQ_USER=dev_worker
+      - RMQ_USER_PASSWORD=password
 
   db:
     image: postgres:11.2-alpine

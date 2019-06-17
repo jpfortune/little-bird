@@ -2,6 +2,7 @@
 import time
 
 from bridge_client import BridgeClient
+from telegram_client import TG_Client
 
 
 # url = "http://bridge:8000/records/"
@@ -14,27 +15,22 @@ from bridge_client import BridgeClient
 # }
 
 
-# def get_telegram_client():
-#    dialogs = client.get_dialogs()
-#
-#    for d in dialogs:
-#        if d.is_channel:
-#            print(f"{d.name}")
-#            pp(vars(d))
-#
-#    client.add_event_handler(handler)
-#    return client
-#
-#    print("(Press Ctrl+C to stop this)")
-#    return client
-
-# async def handler(update):
-#    print(update)
+SESSION = os.environ.get("TG_SESSION")
+API_ID = os.environ.get("TG_API_ID")
+API_HASH = os.environ.get("TG_API_HASH")
 
 
 def main():
-    # client = TG_Client(session, api_id, api_hash, proxy=proxy)
-    bc = BridgeClient("bridge")
+    try:
+        tg_client = TG_Client()
+        )
+    except Exception:
+        pass
+
+    try:
+        bc = BridgeClient("bridge")
+    except Exception:
+        pass
 
     # data = {
     #    "posted": "2000-10-10 12:34:56",
