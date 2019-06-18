@@ -119,3 +119,15 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
+
+# RabbitMQ & Celery
+RMQ_USER = os.environ.get("RMQ_USER")
+RMQ_USER_PASSWORD = os.environ.get("RMQ_USER_PASSWORD")
+
+CELERY = {
+    "BROKER_URL": f"amqp://{RMQ_USER}:{RMQ_USER_PASSWORD}@rabbit:5672//",
+    # "CELERY_IMPORTS": ("api.tasks",),
+    "CELERY_TASK_SERIALIZER": "json",
+    "CELERY_RESULT_SERIALIZER": "json",
+    "CELERY_ACCEPT_CONTENT": ["json"],
+}

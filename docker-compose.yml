@@ -1,6 +1,15 @@
 version: '3.7'
 
 services:
+  db:
+    image: postgres:11.2-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+      - POSTGRES_DB=hello_django_dev
+
   rabbit:
     build: ./rabbit
     ports:
@@ -23,20 +32,6 @@ services:
         #    - bridge
         #  ports:
         #    - 8000
-  worker:
-    build: ./worker
-    environment:
-      - RMQ_USER=dev_worker
-      - RMQ_USER_PASSWORD=password
-
-  db:
-    image: postgres:11.2-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=hello_django
-      - POSTGRES_PASSWORD=hello_django
-      - POSTGRES_DB=hello_django_dev
 
   bridge:
     build: ./bridge
@@ -55,6 +50,20 @@ services:
       - SQL_HOST=db
       - SQL_PORT=5432
       - DATABASE=postgres
+    depends_on:
+      - db
+    entrypoint:
+      - /usr/src/bridge/entrypoint.sh
+
+  worker:
+    build: ./bridge
+    command: celery -A config.celery_app worker -l debug
+    environment:
+      - RMQ_USER=dev_worker
+      - RMQ_USER_PASSWORD=password
+      - SECRET_KEY=foo
+    volumes:
+      - ./bridge/:/usr/src/bridge/
     depends_on:
       - db
 

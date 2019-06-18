@@ -24,4 +24,4 @@ RUN pipenv install --skip-lock --system --dev
 COPY . /usr/src/bridge/
 
 ENV DJANGO_SETTINGS_MODULE config.settings
-ENTRYPOINT ["/usr/src/bridge/entrypoint.sh"]
+#ENTRYPOINT ["/usr/src/bridge/entrypoint.sh"]
