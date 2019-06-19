@@ -30,8 +30,10 @@ class BridgeClient(object):
         """
         attempts = 0
         while attempts < self.max_retries:
+            logging.info("Attempting to connect to bridge...")
             try:
                 requests.get(self.url)
+                logging.info("Connected to bridge.")
                 return
             except Exception as e:
                 attempts += 1

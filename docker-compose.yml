@@ -10,28 +10,23 @@ services:
       - POSTGRES_PASSWORD=hello_django
       - POSTGRES_DB=hello_django_dev
 
-  rabbit:
-    build: ./rabbit
-    ports:
-      - 5672:5672
-      - 15672:15672
-        #environment:
-        #  - RABBIT_HOST=rabbit
-        #  - RABBIT_PORT=5672
-        #    - RABBITMQ_DEFAULT_USER=admin
-        #    - RABBITMQ_DEFAULT_PASS=SOMEPASSWORD
-
-        #telegram:
-        #  build: ./telegram
-        #  #command: python littlebirds.py
-        #  command: python test.py
-        #  #env_file: .env.tg
-        #  volumes:
-        #    - ./telegram/:/usr/src/telegram/
-        #  depends_on:
-        #    - bridge
+        #rabbit:
+        #  build: ./rabbit
         #  ports:
-        #    - 8000
+        #    - 5672:5672
+        #    - 15672:15672
+
+  telegram:
+    build: ./telegram
+    command: python test.py
+    env_file: .env.tg
+    volumes:
+      - ./telegram/:/usr/src/telegram/
+    working_dir: /usr/src/telegram
+    depends_on:
+      - bridge
+    ports:
+      - 8000
 
   bridge:
     build: ./bridge
@@ -55,17 +50,17 @@ services:
     entrypoint:
       - /usr/src/bridge/entrypoint.sh
 
-  worker:
-    build: ./bridge
-    command: celery -A config.celery_app worker -l debug
-    environment:
-      - RMQ_USER=dev_worker
-      - RMQ_USER_PASSWORD=password
-      - SECRET_KEY=foo
-    volumes:
-      - ./bridge/:/usr/src/bridge/
-    depends_on:
-      - db
+        #worker:
+        #  build: ./bridge
+        #  command: celery -A config.celery_app worker -l info
+        #  environment:
+        #    - RMQ_USER=dev_worker
+        #    - RMQ_USER_PASSWORD=password
+        #    - SECRET_KEY=foo
+        #  volumes:
+        #    - ./bridge/:/usr/src/bridge/
+        #  depends_on:
+        #    - db
 
 volumes:
   postgres_data:
